@@ -2,6 +2,10 @@ from collections import defaultdict
 from math import radians, atan2, sin, cos, sqrt
 from typing import List
 
+import cProfile
+import logging
+import tracemalloc
+
 def closestLocationGPS(arr1: List[tuple], arr2: List[tuple]) -> dict:
     """
     This function takes two geo-location arrays and finds the points from the 2nd array that are closest to the points in the 1st array,
@@ -63,8 +67,20 @@ def closestLocationGPS(arr1: List[tuple], arr2: List[tuple]) -> dict:
         return {}
 
 if __name__ == "__main__":
+    tracemalloc.start()
+    logging.basicConfig(level = logging.INFO)
+
+    logger = logging.getLogger(__name__)
     arr1 = [(-68.53306, -108.09832), (37.7749, -122.4194), (79.75216, 97.65512)]
     arr2 = [(-5.62852, -144.59028), (34.052235, -118.243683)]
     
     result = closestLocationGPS(arr1, arr2)
-    print(result)  
+    cProfile.run('closestLocationGPS(arr1, arr2)')
+    logger.info(result)
+
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+
+    logger.info("[ Top 10 ]")
+    for stat in top_stats[:10]:
+        logger.info(stat)  
